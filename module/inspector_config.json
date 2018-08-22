@@ -1,0 +1,16 @@
+{
+    "this_module": {
+        "config": {
+            "usage_description": "capture.usage_description"
+        }
+    },
+    "modules": {
+        "file": {
+            "disabled": true,
+            "version": "2.23",
+            "config": {
+                "usage_description": "file.usage_description"
+            }
+        }
+    }
+}
