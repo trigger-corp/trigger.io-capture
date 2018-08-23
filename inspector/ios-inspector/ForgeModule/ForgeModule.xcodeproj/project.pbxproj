@@ -10,6 +10,8 @@
 		71364CEE212C4738005D4E2A /* capture_Delegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 71364CED212C4738005D4E2A /* capture_Delegate.m */; };
 		71364CF1212C4754005D4E2A /* capture_UIImagePickerControllerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 71364CF0212C4754005D4E2A /* capture_UIImagePickerControllerViewController.m */; };
 		71364CF4212C4764005D4E2A /* capture_Util.m in Sources */ = {isa = PBXBuildFile; fileRef = 71364CF3212C4764005D4E2A /* capture_Util.m */; };
+		71BDD9BF212E90D70075EEA3 /* JLMicrophonePermission.m in Sources */ = {isa = PBXBuildFile; fileRef = 71BDD9BB212E90D70075EEA3 /* JLMicrophonePermission.m */; };
+		71BDD9C0212E90D70075EEA3 /* JLCameraPermission.m in Sources */ = {isa = PBXBuildFile; fileRef = 71BDD9BC212E90D70075EEA3 /* JLCameraPermission.m */; };
 		B31B6D5215C13D5200854074 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B31B6D5115C13D5200854074 /* Foundation.framework */; };
 		B31B6D6F15C1467100854074 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B31B6D6E15C1467100854074 /* CoreFoundation.framework */; };
 		B37C3A5D162717A200B50A60 /* ForgeCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B37C3A5C162717A200B50A60 /* ForgeCore.framework */; };
@@ -29,6 +31,10 @@
 		71364CF2212C4764005D4E2A /* capture_Util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = capture_Util.h; sourceTree = "<group>"; };
 		71364CF3212C4764005D4E2A /* capture_Util.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = capture_Util.m; sourceTree = "<group>"; };
 		718C4FD41F28D7F300A1557F /* placeholder.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = placeholder.plist; sourceTree = "<group>"; };
+		71BDD9BB212E90D70075EEA3 /* JLMicrophonePermission.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JLMicrophonePermission.m; sourceTree = "<group>"; };
+		71BDD9BC212E90D70075EEA3 /* JLCameraPermission.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JLCameraPermission.m; sourceTree = "<group>"; };
+		71BDD9BD212E90D70075EEA3 /* JLMicrophonePermission.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JLMicrophonePermission.h; sourceTree = "<group>"; };
+		71BDD9BE212E90D70075EEA3 /* JLCameraPermission.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JLCameraPermission.h; sourceTree = "<group>"; };
 		B31B6D4E15C13D5200854074 /* libForgeModule.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libForgeModule.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B31B6D5115C13D5200854074 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		B31B6D6D15C1467100854074 /* capture.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = capture.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -69,9 +75,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		71BDD9BA212E90D70075EEA3 /* JLPermissions */ = {
+			isa = PBXGroup;
+			children = (
+				71BDD9BB212E90D70075EEA3 /* JLMicrophonePermission.m */,
+				71BDD9BC212E90D70075EEA3 /* JLCameraPermission.m */,
+				71BDD9BD212E90D70075EEA3 /* JLMicrophonePermission.h */,
+				71BDD9BE212E90D70075EEA3 /* JLCameraPermission.h */,
+			);
+			path = JLPermissions;
+			sourceTree = "<group>";
+		};
 		B31B6D4315C13D5200854074 = {
 			isa = PBXGroup;
 			children = (
+				71BDD9BA212E90D70075EEA3 /* JLPermissions */,
 				718C4FD41F28D7F300A1557F /* placeholder.plist */,
 				B3CC61EF1716ECB500A1A8EF /* capture_API.h */,
 				B3CC61F01716ECB500A1A8EF /* capture_API.m */,
@@ -190,7 +208,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3CC61F21716ECB500A1A8EF /* capture_API.m in Sources */,
+				71BDD9C0212E90D70075EEA3 /* JLCameraPermission.m in Sources */,
 				B3CC61F41716ECBB00A1A8EF /* capture_EventListener.m in Sources */,
+				71BDD9BF212E90D70075EEA3 /* JLMicrophonePermission.m in Sources */,
 				71364CEE212C4738005D4E2A /* capture_Delegate.m in Sources */,
 				71364CF1212C4754005D4E2A /* capture_UIImagePickerControllerViewController.m in Sources */,
 				71364CF4212C4764005D4E2A /* capture_Util.m in Sources */,
