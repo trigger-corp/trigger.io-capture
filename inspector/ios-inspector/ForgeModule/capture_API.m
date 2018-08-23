@@ -70,7 +70,7 @@ NSString *io_trigger_capture_dialog_cancel = @"Cancel";
 }
 
 
-+ (void)check:(ForgeTask*)task permission:(NSString *)permission {
++ (void)permissions_check:(ForgeTask*)task permission:(NSString *)permission {
     JLPermissionsCore* jlpermission = [self resolvePermission:permission];
     if (jlpermission == NULL) {
         [task success:[NSNumber numberWithBool:NO]];
@@ -82,7 +82,7 @@ NSString *io_trigger_capture_dialog_cancel = @"Cancel";
 }
 
 
-+ (void)request:(ForgeTask*)task permission:(NSString *)permission {
++ (void)permissions_request:(ForgeTask*)task permission:(NSString *)permission {
     JLPermissionsCore* jlpermission = [self resolvePermission:permission];
     if (jlpermission == NULL) {
         [task success:[NSNumber numberWithBool:NO]];
