@@ -2,8 +2,6 @@
 
 module("forge.capture");
 
-
-
 if (forge.file) {
 
     asyncTest("Select image from camera roll and check file info", 2, function() {
