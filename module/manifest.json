@@ -1,8 +1,8 @@
 {
-    "changes": "* Migrate to androidx",
+    "changes": "* Fixed: Black screen when closing camera on iOS\n",
     "description": "Access files from camera or gallery.\n\nThe capture module allows your app to use the camera or gallery to capture images.",
     "min_platform_version": "v2.8.0",
     "namespace": "capture",
     "platform_version": "v2.8.0",
-    "version": "2.24"
+    "version": "2.25"
 }
