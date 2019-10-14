@@ -32,7 +32,7 @@ if (forge.file) {
 
     asyncTest("Record a video with the camera and check file info", 2, function() {
         var runTest = function () {
-            forge.file.getVideo({
+            forge.capture.getVideo({
                 source: "camera",
                 videoQuality: "high"
             }, function (file) {
