@@ -146,14 +146,9 @@
 
 
 - (void)closePicker:(void (^ __nullable)(void))success {
-    if (([ForgeUtil isIpad]) && keepPicker.sourceType == UIImagePickerControllerSourceTypePhotoLibrary) {
-        [keepPopover dismissPopoverAnimated:YES];
+    [keepPicker.presentingViewController dismissViewControllerAnimated:YES completion:^{
         if (success != nil) success();
-    } else {
-        [[[ForgeApp sharedApp] viewController] dismissViewControllerAnimated:YES completion:^{
-            if (success != nil) success();
-        }];
-    }
+    }];
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
@@ -210,15 +205,21 @@
 }
 
 
-- (void) presentUIImagePickerController:(UIImagePickerController*)picker {
+- (void) presentUIImagePickerController:(UIImagePickerController*)pickerController {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (([ForgeUtil isIpad]) && picker.sourceType == UIImagePickerControllerSourceTypePhotoLibrary) {
-            UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:picker];
-            self->keepPopover = popover;
-            [popover presentPopoverFromRect:CGRectMake(0.0,0.0,1.0,1.0) inView:[[ForgeApp sharedApp] viewController].view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+        if (([ForgeUtil isIpad]) && pickerController.sourceType == UIImagePickerControllerSourceTypePhotoLibrary) {
+            pickerController.modalPresentationStyle = UIModalPresentationPopover;
+            pickerController.popoverPresentationController.sourceView = [[ForgeApp sharedApp] viewController].view;
+            pickerController.popoverPresentationController.sourceRect = CGRectMake(0.0,0.0,1.0,1.0);
         } else {
-            [[[ForgeApp sharedApp] viewController] presentViewController:picker animated:NO completion:nil];
+            if (@available(iOS 13.0, *)) {
+                pickerController.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+                // As of Xcode 11 GM "UIModalPresentationOverFullScreen" also works on iOS 13 devices (until Apple breaks it again?)
+            } else {
+                pickerController.modalPresentationStyle = UIModalPresentationOverFullScreen;
+            }
         }
+        [[[ForgeApp sharedApp] viewController] presentViewController:pickerController animated:NO completion:nil];
     });
 }
 

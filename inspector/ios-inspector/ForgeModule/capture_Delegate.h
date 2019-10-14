@@ -12,7 +12,6 @@
 {
     ForgeTask *task;
     capture_Delegate *me;
-    UIPopoverController *keepPopover;
     UIImagePickerController *keepPicker;
     id params;
     BOOL didReturn;
