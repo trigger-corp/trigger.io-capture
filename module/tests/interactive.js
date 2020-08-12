@@ -3,7 +3,6 @@
 module("forge.capture");
 
 if (forge.file) {
-
     asyncTest("Select image from camera roll and check file info", 2, function() {
         var runTest = function () {
             forge.capture.getImage(function (file) {
@@ -30,62 +29,35 @@ if (forge.file) {
     });
 
 
-    asyncTest("Record a video with the camera and check file info", 2, function() {
-        var runTest = function () {
-            forge.capture.getVideo({
-                source: "camera",
-                videoQuality: "high"
-            }, function (file) {
-                forge.file.info(file, function (info) {
-                    ok(true, "file.info claims success");
-                    askQuestion("Does the following file information describe the file: " +
-                                JSON.stringify(info), {
-                                    Yes: function () {
-                                        ok(true, "File information is correct");
-                                        start();
-                                    },
-                                    No: function () {
-                                        ok(false, "User claims failure");
-                                        start();
-                                    }
-                                });
-                }, function (e) {
-                    ok(false, "API call failure: " + e.message);
-                    start();
-                });
-            });
-        };
-        askQuestion("When prompted select a video from the gallery", { Ok: runTest });
-    });
-
-
     asyncTest("Saving camera output to Gallery", 1, function() {
-        forge.capture.getImage({
-            source: "camera",
-            width: 100,
-            height: 100
-        }, function (file) {
-            forge.file.URL(file, function (url) {
-                askQuestion("Is this your image:<br><img src='"+url+"' style='max-width: 100px; max-height: 100px'>", {
-                    Yes: function () {
-                        ok(true, "Success with forge.file.URL");
-                        start();
-                    },
-                    No: function () {
-                        ok(false, "User claims failure with forge.file.URL");
-                        start();
-                    }
+        var runTest = function () {
+            forge.capture.getImage({
+                source: "camera",
+                width: 100,
+                height: 100
+            }, function (file) {
+                forge.file.URL(file, function (url) {
+                    askQuestion("Is this your image:<br><img src='"+url+"' style='max-width: 100px; max-height: 100px'>", {
+                        Yes: function () {
+                            ok(true, "Success with forge.file.URL");
+                            start();
+                        },
+                        No: function () {
+                            ok(false, "User claims failure with forge.file.URL");
+                            start();
+                        }
+                    });
+                }, function (e) {
+                    ok(false, "API call failure: "+e.message);
+                    start();
                 });
             }, function (e) {
                 ok(false, "API call failure: "+e.message);
                 start();
             });
-        }, function (e) {
-            ok(false, "API call failure: "+e.message);
-            start();
-        });
+        };
+        askQuestion("When prompted take a picture with the camera", { Ok: runTest });
     });
-
 
 
     asyncTest("Camera", 5, function() {
@@ -153,7 +125,67 @@ if (forge.file) {
             start();
         });
     });
+
+    asyncTest("Record a video with the camera and check file info", 2, function() {
+        var runTest = function () {
+            forge.capture.getVideo({
+                source: "camera",
+                videoQuality: "high"
+            }, function (file) {
+                forge.file.info(file, function (info) {
+                    ok(true, "file.info claims success");
+                    askQuestion("Does the following file information describe the file: " +
+                                JSON.stringify(info), {
+                                    Yes: function () {
+                                        ok(true, "File information is correct");
+                                        start();
+                                    },
+                                    No: function () {
+                                        ok(false, "User claims failure");
+                                        start();
+                                    }
+                                });
+                }, function (e) {
+                    ok(false, "API call failure: " + e.message);
+                    start();
+                });
+            });
+        };
+        askQuestion("Record a video", { Ok: runTest });
+    });
+
+
+    if (forge.is.ios()) {
+        asyncTest("Select a video with low quality and check file info", 2, function() {
+            var runTest = function () {
+                forge.file.getVideo({
+                    source: "gallery",
+                    videoQuality: "low"
+                }, function (file) {
+                    forge.file.info(file, function (info) {
+                        ok(true, "file.info claims success");
+                        askQuestion("Is the file size smaller: " +
+                                    JSON.stringify(info), {
+                                        Yes: function () {
+                                            ok(true, "File information is correct");
+                                            start();
+                                        },
+                                        No: function () {
+                                            ok(false, "User claims failure");
+                                            start();
+                                        }
+                                    });
+                    }, function (e) {
+                        ok(false, "API call failure: " + e.message);
+                        start();
+                    });
+                });
+            };
+            askQuestion("When prompted select the video you recorded from the gallery", { Ok: runTest });
+        });
+    }
 }
+
 
 if (forge.media && forge.file) {
 
@@ -213,25 +245,7 @@ asyncTest("Cancel", 1, function() {
 
 
 if (forge.file && forge.request) {
-    var upload_url = "http://httpbin.org/post";
-
-    asyncTest("File upload", 1, function() {
-        forge.capture.getVideo(function (file) {
-            forge.request.ajax({
-                url: upload_url,
-                files: [file],
-                success: function (data) {
-                    data = JSON.parse(data);
-                    forge.logging.log("Response: " + JSON.stringify(data.headers));
-                    start();
-                },
-                error: function () {
-                    ok(false, "Ajax error callback");
-                    start();
-                }
-            });
-        });
-    });
+    var upload_url = "https://httpbin.org/post";
 
     asyncTest("Raw File upload", 1, function() {
         forge.capture.getVideo(function (file) {
@@ -240,10 +254,20 @@ if (forge.file && forge.request) {
                 files: [file],
                 fileUploadMethod: "raw",
                 success: function (data) {
-                    data = JSON.parse(data);
+                    try {
+                        data = JSON.parse(data);
+                    } catch (e) {
+                        forge.logging.error("Error parsing response: " + JSON.stringify(e));
+                        ok(false);
+                        start();
+                        return;
+                    }
                     forge.logging.log("Response: " + JSON.stringify(data.headers));
                     ok(true);
                     start();
+                },
+                progress: function (size) {
+                    forge.logging.log(size.done + " of " + size.total);
                 },
                 error: function () {
                     ok(false, "Ajax error callback");
@@ -253,4 +277,33 @@ if (forge.file && forge.request) {
         });
     });
 
+
+    asyncTest("File upload", 1, function() {
+        forge.capture.getVideo(function (file) {
+            forge.request.ajax({
+                url: upload_url,
+                files: [file],
+                success: function (data) {
+                    try {
+                        data = JSON.parse(data);
+                    } catch (e) {
+                        forge.logging.error("Error parsing response: " + JSON.stringify(e));
+                        ok(false);
+                        start();
+                        return;
+                    }
+                    forge.logging.log("Response: " + JSON.stringify(data.headers));
+                    ok(true);
+                    start();
+                },
+                progress: function (size) {
+                    forge.logging.log(size.done + " of " + size.total);
+                },
+                error: function () {
+                    ok(false, "Ajax error callback");
+                    start();
+                }
+            });
+        });
+    });
 }
