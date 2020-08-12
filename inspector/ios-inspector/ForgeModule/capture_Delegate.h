@@ -8,17 +8,22 @@
 
 #import <Foundation/Foundation.h>
 
-@interface capture_Delegate : NSObject <UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@interface capture_Delegate : NSObject <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 {
-    ForgeTask *task;
+@public
+    ForgeTask *_task;
+@protected
     capture_Delegate *me;
     UIImagePickerController *keepPicker;
     id params;
-    BOOL didReturn;
     NSString* type;
 }
 
-- (capture_Delegate*_Nullable) initWithTask:(ForgeTask*_Nullable)initTask andParams:(id _Nullable )initParams andType:(NSString*_Nullable)initType;
+//@property(atomic, assign) ForgeTask * _Nonnull task;
+@property(atomic, assign) BOOL didReturn;
+
+- (capture_Delegate*_Nullable) initWithTask:(ForgeTask*_Nonnull)initTask andParams:(id _Nullable )initParams andType:(NSString*_Nonnull)initType;
+- (void)openPicker:(UIImagePickerControllerSourceType)sourceType;
 - (void)closePicker:(void (^ __nullable)(void))success;
 - (void)cancel;
 - (void)didDisappear;

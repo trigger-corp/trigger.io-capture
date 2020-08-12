@@ -17,9 +17,9 @@
 
 - (capture_Delegate*) initWithTask:(ForgeTask *)initTask andParams:(id)initParams andType:(NSString *)initType {
     if (self = [super init]) {
-        task = initTask;
+        _task = initTask;
         params = initParams;
-        didReturn = NO;
+        _didReturn = NO;
         type = initType;
         // "retain"
         me = self;
@@ -43,9 +43,8 @@
  * 5. Gallery Video                 => url (photo-library://video/5B345FEF...) => data [a]
  */
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
-    didReturn = YES;
+    _didReturn = YES;
     [self closePicker:^{
-
         if (self->keepPicker.sourceType == UIImagePickerControllerSourceTypeCamera) {
             if ([[info objectForKey:UIImagePickerControllerMediaType] isEqualToString:(NSString *)kUTTypeImage]) {
                 UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
@@ -54,7 +53,7 @@
                 if ([[self->params objectForKey:@"saveLocation"] isEqualToString:@"file"]) {
                     NSString *path = [NSString stringWithFormat:@"%@/%@.jpg", [[NSFileManager defaultManager] applicationSupportDirectory], [NSString stringWithFormat: @"%.0f", [NSDate timeIntervalSinceReferenceDate] * 1000.0]];
                     [UIImageJPEGRepresentation(image, 0.8) writeToFile:path atomically:YES];
-                    [self->task success:path]; // image: /path/to/image
+                    [self->_task success:path]; // image: /path/to/image
                     return;
                 }
 
@@ -66,11 +65,11 @@
                     localIdentifier = [[assetChangeRequest placeholderForCreatedAsset] localIdentifier];
                 } completionHandler:^(BOOL success, NSError *error) {
                     if (!success) {
-                        [self->task error:[error localizedDescription]];
+                        [self->_task error:[error localizedDescription]];
                         return;
                     }
                     NSString *url = [NSString stringWithFormat:@"photo-library://image/%@?ext=JPG", localIdentifier];
-                    [self->task success:url]; // image: photo-library://image/5B345FEF-30D7-41C3-BC4E-E11A9F6B4F42/L0/001?ext=JPG
+                    [self->_task success:url]; // image: photo-library://image/5B345FEF-30D7-41C3-BC4E-E11A9F6B4F42/L0/001?ext=JPG
                 }];
 
             } else if ([[info objectForKey:UIImagePickerControllerMediaType] isEqualToString:(NSString *)kUTTypeMovie]) {
@@ -82,11 +81,11 @@
                     localIdentifier = [[assetChangeRequest placeholderForCreatedAsset] localIdentifier];
                 } completionHandler:^(BOOL success, NSError *error) {
                     if (!success) {
-                        [self->task error:[error localizedDescription]];
+                        [self->_task error:[error localizedDescription]];
                         return;
                     }
                     NSString *ret = [NSString stringWithFormat:@"photo-library://video/%@?ext=MOV", localIdentifier];
-                    [self->task success:ret]; // photo-library://video/5B345FEF-30D7-41C3-BC4E-E11A9F6B4F42/L0/001?ext=MOV
+                    [self->_task success:ret]; // photo-library://video/5B345FEF-30D7-41C3-BC4E-E11A9F6B4F42/L0/001?ext=MOV
                 }];
             }
 
@@ -102,27 +101,27 @@
                 }
             }
             if (asset == nil) {
-                [self->task error:[NSString stringWithFormat:@"ForgeFile could not locate an asset with reference url: %@", [info objectForKey:@"UIImagePickerControllerReferenceURL"]]];
+                [self->_task error:[NSString stringWithFormat:@"ForgeFile could not locate an asset with reference url: %@", [info objectForKey:@"UIImagePickerControllerReferenceURL"]]];
                 return;
             }
 
             if (asset.mediaType == PHAssetMediaTypeImage) {
                 // 4. Select a gallery image and return a reference to the image
                 NSString *ret = [NSString stringWithFormat:@"photo-library://image/%@?ext=JPG", [asset localIdentifier]];
-                [self->task success:ret]; // photo-library://image/5B345FEF-30D7-41C3-BC4E-E11A9F6B4F42/L0/001?ext=JPG
+                [self->_task success:ret]; // photo-library://image/5B345FEF-30D7-41C3-BC4E-E11A9F6B4F42/L0/001?ext=JPG
 
             } else if (asset.mediaType == PHAssetMediaTypeVideo) {
                 // 5. Select a gallery video, potentially transcode it and return a reference to the video
                 NSString *videoQuality = [self->params objectForKey:@"videoQuality"] ? [self->params objectForKey:@"videoQuality"] : @"default";
                 if ([videoQuality isEqualToString:@"default"]) {
                     NSString *ret = [NSString stringWithFormat:@"photo-library://video/%@?ext=MOV", [asset localIdentifier]];
-                    [self->task success:ret]; // photo-library://video/5B345FEF-30D7-41C3-BC4E-E11A9F6B4F42/L0/001?ext=MOV
+                    [self->_task success:ret]; // photo-library://video/5B345FEF-30D7-41C3-BC4E-E11A9F6B4F42/L0/001?ext=MOV
                 } else {
-                    [capture_Util transcode:asset withTask:self->task videoQuality:videoQuality]; // /path/to/video
+                    [capture_Util transcode:asset withTask:self->_task videoQuality:videoQuality]; // /path/to/video
                 }
 
             } else {
-                [self->task error:[NSString stringWithFormat:@"Unknown media type for selection: %@", [info objectForKey:@"UIImagePickerControllerReferenceURL"]]];
+                [self->_task error:[NSString stringWithFormat:@"Unknown media type for selection: %@", [info objectForKey:@"UIImagePickerControllerReferenceURL"]]];
             }
 
         }
@@ -131,9 +130,9 @@
 
 
 - (void) cancel {
-    if (!didReturn) {
-        didReturn = YES;
-        [task error:@"Image selection cancelled" type:@"EXPECTED_FAILURE" subtype:nil];
+    if (!_didReturn) {
+        _didReturn = YES;
+        [_task error:@"Image selection cancelled" type:@"EXPECTED_FAILURE" subtype:nil];
     }
 }
 
@@ -151,28 +150,24 @@
     }];
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    if (buttonIndex != 0 && buttonIndex != 1) {
-        didReturn = YES;
-        [task error:@"Image selection cancelled" type:@"EXPECTED_FAILURE" subtype:nil];
-        // "release"
-        me = nil;
-        return;
+- (void)openPicker:(UIImagePickerControllerSourceType)sourceType {
+    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] &&
+               sourceType == UIImagePickerControllerSourceTypeCamera) {
+        [_task error:@"No camera available on device" type:@"EXPECTED_FAILURE" subtype:nil];
     }
+    
+    // create picker
     capture_UIImagePickerControllerViewController *picker = [[capture_UIImagePickerControllerViewController alloc] init];
     keepPicker = picker;
+    
+    // configure picker
+    picker.sourceType = sourceType;
 
     // Going to be wanting the most compatible version for a good many years yet!
     if (@available(iOS 11_0, *)) {
         picker.imageExportPreset = UIImagePickerControllerImageURLExportPresetCompatible;
     }
-
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] && buttonIndex == 0) {
-        picker.sourceType = UIImagePickerControllerSourceTypeCamera;
-    } else {
-        picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    }
-
+    
     // Video or Photo
     picker.mediaTypes = [NSArray arrayWithObjects:type, nil];
 
@@ -197,7 +192,7 @@
     // As of iOS 11 UIImagePickerController runs out of process and we can no longer rely on getting permission request dialogs automatically
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
         if (status != PHAuthorizationStatusAuthorized) {
-            [self->task error:@"Permission denied. User didn't grant access to storage." type:@"EXPECTED_FAILURE" subtype:nil];
+            [self->_task error:@"Permission denied. User didn't grant access to storage." type:@"EXPECTED_FAILURE" subtype:nil];
             return;
         }
         [self presentUIImagePickerController:picker];

@@ -24,48 +24,58 @@ NSString *io_trigger_capture_dialog_capture_source_gallery = @"Gallery";
 NSString *io_trigger_capture_dialog_capture_pick_source = @"Pick a source";
 NSString *io_trigger_capture_dialog_cancel = @"Cancel";
 
+
 + (void)getImage:(ForgeTask*)task source:(NSString*)source {
-    capture_Delegate *delegate = [[capture_Delegate alloc] initWithTask:task andParams:task.params andType:(NSString *)kUTTypeImage];
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]
-        && ![source isEqualToString:@"camera"] && ![source isEqualToString:@"gallery"]) {
-        UIActionSheet *menu = [[UIActionSheet alloc] initWithTitle:io_trigger_capture_dialog_capture_pick_source
-                                                          delegate:delegate
-                                                 cancelButtonTitle:io_trigger_capture_dialog_cancel
-                                            destructiveButtonTitle:nil
-                                                 otherButtonTitles:io_trigger_capture_dialog_capture_source_camera, io_trigger_capture_dialog_capture_source_gallery, nil];
-        menu.delegate = delegate;
-        if ([menu respondsToSelector:@selector(alertInView:)]) {
-            [menu alertInView:[[ForgeApp sharedApp] viewController].view];
-        } else {
-            [menu showInView:[[ForgeApp sharedApp] viewController].view];
-        }
-    } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]
-               && [source isEqualToString:@"camera"]) {
-        [delegate actionSheet:nil didDismissWithButtonIndex:0];
-    } else {
-        [delegate actionSheet:nil didDismissWithButtonIndex:1];
-    }
+    capture_Delegate *delegate = [[capture_Delegate alloc] initWithTask:task
+                                                              andParams:task.params
+                                                                andType:(NSString *)kUTTypeImage];
+    [capture_API _dispatch_delegate:delegate source:source];
 }
 
+
 + (void)getVideo:(ForgeTask*)task source:(NSString*)source {
-    capture_Delegate *delegate = [[capture_Delegate alloc] initWithTask:task andParams:task.params andType:(NSString *)kUTTypeMovie];
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]
-        && ![source isEqualToString:@"camera"] && ![source isEqualToString:@"gallery"]) {
-        UIActionSheet *menu = [[UIActionSheet alloc] initWithTitle:io_trigger_capture_dialog_capture_pick_source
-                                                          delegate:delegate
-                                                 cancelButtonTitle:io_trigger_capture_dialog_cancel
-                                            destructiveButtonTitle:nil otherButtonTitles:io_trigger_capture_dialog_capture_source_camera, io_trigger_capture_dialog_capture_source_gallery, nil];
-        menu.delegate = delegate;
-        if ([menu respondsToSelector:@selector(alertInView:)]) {
-            [menu alertInView:[[ForgeApp sharedApp] viewController].view];
-        } else {
-            [menu showInView:[[ForgeApp sharedApp] viewController].view];
-        }
-    } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]
-               && [source isEqualToString:@"camera"]) {
-        [delegate actionSheet:nil didDismissWithButtonIndex:0];
+    capture_Delegate *delegate = [[capture_Delegate alloc] initWithTask:task
+                                                              andParams:task.params
+                                                                andType:(NSString *)kUTTypeMovie];
+    [capture_API _dispatch_delegate:delegate source:source];
+}
+
+
++ (void)_dispatch_delegate:(capture_Delegate*)delegate source:(NSString*)source {
+    if ([source isEqualToString:@"camera"]) {
+        [delegate openPicker:UIImagePickerControllerSourceTypeCamera];
+        
+    } else if ([source isEqualToString:@"gallery"]) {
+        [delegate openPicker:UIImagePickerControllerSourceTypePhotoLibrary];
+        
     } else {
-        [delegate actionSheet:nil didDismissWithButtonIndex:1];
+        UIAlertController *alertController =
+            [UIAlertController alertControllerWithTitle:io_trigger_capture_dialog_capture_pick_source
+                                                message:nil
+                                         preferredStyle:UIAlertControllerStyleActionSheet];
+        [alertController addAction:[UIAlertAction actionWithTitle:io_trigger_capture_dialog_cancel
+                                                            style:UIAlertActionStyleCancel
+                                                          handler:^(UIAlertAction *action) {
+            [alertController dismissViewControllerAnimated:YES completion:^{
+                delegate.didReturn = YES;
+                [delegate->_task error:@"Image selection cancelled" type:@"EXPECTED_FAILURE" subtype:nil];
+            }];
+        }]];
+        [alertController addAction:[UIAlertAction actionWithTitle:io_trigger_capture_dialog_capture_source_camera
+                                                            style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction *action) {
+            [alertController dismissViewControllerAnimated:YES completion:^{
+                [delegate openPicker:UIImagePickerControllerSourceTypeCamera];
+            }];
+        }]];
+        [alertController addAction:[UIAlertAction actionWithTitle:io_trigger_capture_dialog_capture_source_gallery
+                                                            style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction *action) {
+            [alertController dismissViewControllerAnimated:YES completion:^{
+                [delegate openPicker:UIImagePickerControllerSourceTypePhotoLibrary];
+            }];
+        }]];
+        [ForgeApp.sharedApp.viewController presentViewController:alertController animated:YES completion:nil];
     }
 }
 
