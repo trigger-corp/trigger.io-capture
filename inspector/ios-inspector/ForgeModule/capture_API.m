@@ -111,7 +111,10 @@ NSString *io_trigger_capture_dialog_cancel = @"Cancel";
     }
 
     [jlpermission authorize:^(BOOL granted, NSError * _Nullable error) {
-        [jlpermission setRationale:nil]; // reset rationale
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+        [jlpermission setRationale:nil]; // force reset rationale
+#pragma clang diagnostic pop
         if (error) {
             [ForgeLog d:[NSString stringWithFormat:@"permissions.check '%@' failed with error: %@", permission, error]];
         }
