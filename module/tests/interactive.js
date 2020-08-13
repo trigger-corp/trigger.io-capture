@@ -2,6 +2,92 @@
 
 module("forge.capture");
 
+
+// permissions module native code has to be baked into the capture module to avoid app store rejections
+if (forge.is.ios()) {
+    if (!forge.permissions) {
+        forge.permissions = {
+            check: function (permission, success, error) {
+                forge.internal.call("capture.permissions_check", {
+                    permission: resolve(permission)
+                }, success, error);
+
+            },
+            request: function (permission, rationale, success, error) {
+                forge.internal.call("capture.permissions_request", {
+                    permission: resolve(permission),
+                    rationale: rationale
+                }, success, error);
+            },
+            photos: {
+                "read": "photos_read"
+            },
+            camera: {
+                "read": "camera_read"
+            },
+            microphone: {
+                "record": "microphone_record"
+            },
+        };
+        function resolve(permission) {
+            if (forge.permissions.camera.read) {
+                return "ios.permission.camera";
+            } else if (forge.permissions.microphone.record) {
+                return "ios.permission.microphone";
+            } else {
+                throw "Unknown permission: " + permission;
+            }
+        }
+    }
+
+    var rationale = "Can haz captureburger?";
+
+    asyncTest("Camera permission request denied.", 1, function() {
+        var runTest = function() {
+            forge.permissions.request(forge.permissions.camera.read, rationale, function (allowed) {
+                if (!allowed) {
+                    ok(true, "Permission request denied.");
+                    start();
+                } else {
+                    ok(false, "Permission request was allowed. Expected permission denied.");
+                    start();
+                }
+            }, function () {
+                ok(false, "API method returned failure");
+                start();
+            });
+        };
+        forge.permissions.check(forge.permissions.camera.read, function (allowed) {
+            if (allowed) {
+                ok(true, "Already have permission");
+                start();
+            } else {
+                askQuestion("When prompted, deny the permission request", { Ok: runTest });
+            }
+        });
+
+    });
+
+    asyncTest("Camera permission request allowed.", 1, function() {
+        var runTest = function() {
+            forge.permissions.request(forge.permissions.camera.read, rationale, function (allowed) {
+                if (allowed) {
+                    ok(true, "Permission request allowed.");
+                    start();
+                } else {
+                    ok(false, "Permission request was denied. Expected permission allowed.");
+                    start();
+                }
+            }, function () {
+                ok(false, "API method returned failure");
+                start();
+            });
+        };
+        askQuestion("If prompted, allow the permission request", { Ok: runTest });
+    });
+}
+
+
 if (forge.file) {
     asyncTest("Select image from camera roll and check file info", 2, function() {
         var runTest = function () {
@@ -23,6 +109,9 @@ if (forge.file) {
                     ok(false, "API call failure: " + e.message);
                     start();
                 });
+            }, function (e) {
+                ok(false, "API call failure: " + e.message);
+                start();
             });
         };
         askQuestion("When prompted take a picture with the camera or select a file from the gallery", { Ok: runTest });
