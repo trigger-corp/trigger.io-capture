@@ -90,16 +90,7 @@
             }
 
         } else {  // source is gallery
-            PHAsset *asset = nil;
-            if (@available(iOS 11_0, *)) {
-               asset = [info objectForKey:UIImagePickerControllerPHAsset];
-            } else {
-                NSURL *referenceURL = [info objectForKey:UIImagePickerControllerReferenceURL];
-                PHFetchResult *assetResult = [PHAsset fetchAssetsWithALAssetURLs:@[referenceURL] options:nil];
-                if ([assetResult count] >= 1) {
-                    asset = [assetResult firstObject];
-                }
-            }
+            PHAsset *asset = [info objectForKey:UIImagePickerControllerPHAsset];
             if (asset == nil) {
                 [self->_task error:[NSString stringWithFormat:@"ForgeFile could not locate an asset with reference url: %@", [info objectForKey:@"UIImagePickerControllerReferenceURL"]]];
                 return;
@@ -155,11 +146,11 @@
                sourceType == UIImagePickerControllerSourceTypeCamera) {
         [_task error:@"No camera available on device" type:@"EXPECTED_FAILURE" subtype:nil];
     }
-    
+
     // create picker
     capture_UIImagePickerControllerViewController *picker = [[capture_UIImagePickerControllerViewController alloc] init];
     keepPicker = picker;
-    
+
     // configure picker
     picker.sourceType = sourceType;
 
@@ -167,7 +158,7 @@
     if (@available(iOS 11_0, *)) {
         picker.imageExportPreset = UIImagePickerControllerImageURLExportPresetCompatible;
     }
-    
+
     // Video or Photo
     picker.mediaTypes = [NSArray arrayWithObjects:type, nil];
 
