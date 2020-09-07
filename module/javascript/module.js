@@ -17,18 +17,7 @@ forge["capture"] = {
         if (!props) {
             props = {};
         }
-        forge.internal.call("capture.getImage", props, success && function (uri) {
-            var file = {
-                uri: uri,
-                name: "Image",
-                type: "image"
-            };
-            if (props.width) {
-                file.width = props.width;
-            }
-            if (props.height) {
-                file.height = props.height;
-            }
+        forge.internal.call("capture.getImage", props, success && function (file) {
             success(file);
         }, error);
     },
@@ -49,12 +38,7 @@ forge["capture"] = {
         if (!props) {
             props = {};
         }
-        forge.internal.call("capture.getVideo", props, success && function (uri) {
-            var file = {
-                uri: uri,
-                name: "Video",
-                type: "video"
-            };
+        forge.internal.call("capture.getVideo", props, success && function (file) {
             success(file);
         }, error);
     }
