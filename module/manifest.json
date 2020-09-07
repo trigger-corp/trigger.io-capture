@@ -1,8 +1,8 @@
 {
-    "changes": "* Fixed: Black screen when closing camera on iOS\n",
-    "description": "Access files from camera or gallery.\n\nThe capture module allows your app to use the camera or gallery to capture images.",
-    "min_platform_version": "v2.8.0",
+    "changes": "* The `source` option is no longer supported.\n* iOS 14 support\n* Android 30 support",
+    "description": "The capture module allows your app to capture images or video from the device camera.\n",
+    "min_platform_version": "v2.9.0",
     "namespace": "capture",
-    "platform_version": "v2.8.0",
-    "version": "2.25"
+    "platform_version": "v2.9.0",
+    "version": "2.26"
 }
