@@ -11,9 +11,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface capture_Util : NSObject
+@interface capture_Storage : NSObject
 
-+ (void)transcode:(PHAsset*)asset withTask:(ForgeTask*)task videoQuality:(NSString*)videoQuality;
++ (ForgeFile*)writeUIImageToTemporaryFile:(UIImage*)image maxWidth:(int)maxWidth maxHeight:(int)maxHeight error:(NSError**)error;
++ (ForgeFile*)writeNSURLToTemporaryFile:(NSURL*)url error:(NSError**)error;
 
 @end
 

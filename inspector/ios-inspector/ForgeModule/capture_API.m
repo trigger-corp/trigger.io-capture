@@ -7,7 +7,6 @@
 //
 
 #import <MobileCoreServices/UTCoreTypes.h>
-#import <ForgeCore/UIActionSheet+UIAlertInView.h>
 
 #import "JLCameraPermission.h"
 #import "JLMicrophonePermission.h"
@@ -18,67 +17,39 @@
 
 @implementation capture_API
 
-NSString *io_trigger_capture_dialog_capture_camera_description = @"Not Used";
-NSString *io_trigger_capture_dialog_capture_source_camera = @"Camera";
-NSString *io_trigger_capture_dialog_capture_source_gallery = @"Gallery";
-NSString *io_trigger_capture_dialog_capture_pick_source = @"Pick a source";
-NSString *io_trigger_capture_dialog_cancel = @"Cancel";
+#pragma mark interface
 
++ (void)getImage:(ForgeTask*)task {
+    capture_Delegate *delegate = [capture_Delegate withTask:task type:(NSString*)kUTTypeImage];
+    delegate.saveLocation = task.params[@"saveLocation"] ? (NSString*)task.params[@"saveLocation"] : @"file";
+    delegate.width = task.params[@"width"] ? [task.params[@"width"] intValue] : 0;
+    delegate.height = task.params[@"height"] ? [task.params[@"height"] intValue] : 0;
 
-+ (void)getImage:(ForgeTask*)task source:(NSString*)source {
-    capture_Delegate *delegate = [[capture_Delegate alloc] initWithTask:task
-                                                              andParams:task.params
-                                                                andType:(NSString *)kUTTypeImage];
-    [capture_API _dispatch_delegate:delegate source:source];
+    [delegate openPicker];
 }
 
 
-+ (void)getVideo:(ForgeTask*)task source:(NSString*)source {
-    capture_Delegate *delegate = [[capture_Delegate alloc] initWithTask:task
-                                                              andParams:task.params
-                                                                andType:(NSString *)kUTTypeMovie];
-    [capture_API _dispatch_delegate:delegate source:source];
++ (void)getVideo:(ForgeTask*)task {
+    capture_Delegate *delegate = [capture_Delegate withTask:task type:(NSString*)kUTTypeMovie];
+    delegate.saveLocation = task.params[@"saveLocation"] ? (NSString*)task.params[@"saveLocation"] : @"file";
+    delegate.videoDuration = task.params[@"videoDuration"] ? [task.params[@"videoDuration"] doubleValue] : 0;
+    delegate.videoQuality = task.params[@"videoQuality"] ? (NSString*)task.params[@"videoQuality"] : @"default";
+
+    /*[PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+        if (status != PHAuthorizationStatusAuthorized) {
+            [self->task error:@"Permission denied. User didn't grant access to storage." type:@"EXPECTED_FAILURE" subtype:nil];
+            return;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // TODO
+        });
+    }];*/
+
+    [delegate openPicker];
 }
 
 
-+ (void)_dispatch_delegate:(capture_Delegate*)delegate source:(NSString*)source {
-    if ([source isEqualToString:@"camera"]) {
-        [delegate openPicker:UIImagePickerControllerSourceTypeCamera];
-        
-    } else if ([source isEqualToString:@"gallery"]) {
-        [delegate openPicker:UIImagePickerControllerSourceTypePhotoLibrary];
-        
-    } else {
-        UIAlertController *alertController =
-            [UIAlertController alertControllerWithTitle:io_trigger_capture_dialog_capture_pick_source
-                                                message:nil
-                                         preferredStyle:UIAlertControllerStyleActionSheet];
-        [alertController addAction:[UIAlertAction actionWithTitle:io_trigger_capture_dialog_cancel
-                                                            style:UIAlertActionStyleCancel
-                                                          handler:^(UIAlertAction *action) {
-            [alertController dismissViewControllerAnimated:YES completion:^{
-                delegate.didReturn = YES;
-                [delegate->_task error:@"Image selection cancelled" type:@"EXPECTED_FAILURE" subtype:nil];
-            }];
-        }]];
-        [alertController addAction:[UIAlertAction actionWithTitle:io_trigger_capture_dialog_capture_source_camera
-                                                            style:UIAlertActionStyleDefault
-                                                          handler:^(UIAlertAction *action) {
-            [alertController dismissViewControllerAnimated:YES completion:^{
-                [delegate openPicker:UIImagePickerControllerSourceTypeCamera];
-            }];
-        }]];
-        [alertController addAction:[UIAlertAction actionWithTitle:io_trigger_capture_dialog_capture_source_gallery
-                                                            style:UIAlertActionStyleDefault
-                                                          handler:^(UIAlertAction *action) {
-            [alertController dismissViewControllerAnimated:YES completion:^{
-                [delegate openPicker:UIImagePickerControllerSourceTypePhotoLibrary];
-            }];
-        }]];
-        [ForgeApp.sharedApp.viewController presentViewController:alertController animated:YES completion:nil];
-    }
-}
-
+#pragma mark permissions
 
 + (void)permissions_check:(ForgeTask*)task permission:(NSString *)permission {
     JLPermissionsCore* jlpermission = [self resolvePermission:permission];

@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface capture_UIImagePickerControllerViewController : UIImagePickerController
+@interface capture_UIImagePickerController : UIImagePickerController
 
 @end
 

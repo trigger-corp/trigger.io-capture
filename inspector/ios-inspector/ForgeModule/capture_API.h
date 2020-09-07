@@ -10,16 +10,8 @@
 
 @interface capture_API : NSObject
 
-+ (void)getImage:(ForgeTask*)task source:(NSString*)source;
-+ (void)getVideo:(ForgeTask*)task source:(NSString*)source;
++ (void)getImage:(ForgeTask*)task;
++ (void)getVideo:(ForgeTask*)task;
 
 @end
-
-extern NSString *io_trigger_capture_dialog_capture_camera_description;
-extern NSString *io_trigger_capture_dialog_capture_source_camera;
-extern NSString *io_trigger_capture_dialog_capture_source_gallery;
-extern NSString *io_trigger_capture_dialog_capture_pick_source;
-extern NSString *io_trigger_capture_dialog_cancel;
-
-
 
