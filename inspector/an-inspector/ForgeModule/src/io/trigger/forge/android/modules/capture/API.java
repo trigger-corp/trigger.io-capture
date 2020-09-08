@@ -4,9 +4,7 @@ import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 
 import androidx.core.content.FileProvider;
@@ -27,14 +25,6 @@ import static android.app.Activity.RESULT_OK;
 
 
 public class API {
-
-    private static String getApplicationName() {
-        ApplicationInfo applicationInfo = ForgeApp.getActivity().getApplicationInfo();
-        int stringId = applicationInfo.labelRes;
-        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString()
-                : ForgeApp.getActivity().getString(stringId);
-    }
-
     public static void getImage(final ForgeTask task) {
         final int width = task.params.has("width") ? task.params.get("width").getAsInt() : 0;
         final int height = task.params.has("height") ? task.params.get("height").getAsInt() : 0;
@@ -45,6 +35,7 @@ public class API {
         File temporaryFile = Paths.get(ForgeStorage.getNativeURL(forgeFile).getPath()).toFile();
 
         Uri uri = null;
+
         if (saveLocation.equalsIgnoreCase("gallery")) {
             ContentValues values = new ContentValues();
             values.put(MediaStore.MediaColumns.TITLE, filename);
@@ -54,6 +45,7 @@ public class API {
         } else {
             uri = FileProvider.getUriForFile(ForgeApp.getActivity(), ForgeApp.getFileProviderAuthority(), temporaryFile);
         }
+
         final Uri temporaryUri = uri;
 
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -96,18 +88,41 @@ public class API {
     public static void getVideo(final ForgeTask task) {
         final String saveLocation = task.params.has("saveLocation") ? task.params.get("saveLocation").getAsString() : "file";
         final String videoQuality = task.params.has("videoQuality") ? task.params.get("videoQuality").getAsString() : "default";
+        final int videoDuration = task.params.has("videoDuration") ? task.params.get("videoDuration").getAsInt() : 0;
 
         Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
 
-        if (task.params.has("videoQuality") && task.params.get("videoQuality").getAsString().equalsIgnoreCase("low")) {
-            intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
-        } else {
+        if (videoQuality.equalsIgnoreCase("high")) {
             intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+        } else if (videoQuality.equalsIgnoreCase("medium")) {
+            intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+        } else if (videoQuality.equalsIgnoreCase("low")) {
+            intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
         }
 
-        if (task.params.has("videoDuration")) {
-            intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, task.params.get("videoDuration").getAsInt());
+        if (videoDuration > 0) {
+            intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, videoDuration);
         }
+
+        String filename = ForgeStorage.temporaryFileNameWithExtension("mp4");
+        ForgeFile forgeFile = new ForgeFile(ForgeStorage.EndpointId.Documents, filename);
+        File temporaryFile = Paths.get(ForgeStorage.getNativeURL(forgeFile).getPath()).toFile();
+
+        Uri uri = null;
+
+        if (saveLocation.equalsIgnoreCase("gallery")) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.TITLE, filename);
+            values.put(MediaStore.Images.ImageColumns.DESCRIPTION, API.getApplicationName());
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
+            uri = ForgeApp.getActivity().getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+        } else {
+            uri = FileProvider.getUriForFile(ForgeApp.getActivity(), ForgeApp.getFileProviderAuthority(), temporaryFile);
+
+        }
+
+        final Uri temporaryUri = uri;
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
 
         ForgeIntentResultHandler resultHandler = new ForgeIntentResultHandler() {
             @Override
@@ -120,28 +135,18 @@ public class API {
                     return;
                 }
 
-                Uri uri = data.getData();
-                if (uri == null) {
-                    if (Build.VERSION.SDK_INT >= 18) {
-                        // Bug in Nexus 4.3 devices (maybe other 4.3 devices so try this trick on all 4.3 devices that return null)
-                        // https://code.google.com/p/android/issues/detail?id=57996
-                        long max_val = 0;
-                        Cursor cursor = ForgeApp.getActivity().getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, new String[]{"MAX(_id) as max_id"}, null, null, "_id");
-                        if (cursor.moveToFirst()) {
-                            max_val = cursor.getLong(cursor.getColumnIndex("max_id"));
-                            uri = Uri.parse(MediaStore.Video.Media.EXTERNAL_CONTENT_URI.toString() + "/" + max_val);
-                        }
+                ForgeFile forgeFile = null;
+                try {
+                    forgeFile = Storage.writeVideoUriToTemporaryFile(temporaryUri, videoQuality);
+                    if (temporaryFile.exists()) {
+                        temporaryFile.delete();
                     }
-                }
-
-                if (uri == null) {
-                    task.error("Unknown error capturing video", "UNEXPECTED_FAILURE", null);
+                } catch (IOException e) {
+                    task.error("Error saving image: " + e.getLocalizedMessage(), "UNEXPECTED_FAILURE", null);
                     return;
                 }
 
-                // TODOsave uri
-
-                task.success(uri.toString());
+                task.success(forgeFile.toScriptObject());
             }
         };
 
@@ -150,5 +155,12 @@ public class API {
                 ForgeApp.intentWithHandler(intent, resultHandler);
             });
         });
+    }
+
+    private static String getApplicationName() {
+        ApplicationInfo applicationInfo = ForgeApp.getActivity().getApplicationInfo();
+        int stringId = applicationInfo.labelRes;
+        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString()
+                : ForgeApp.getActivity().getString(stringId);
     }
 }

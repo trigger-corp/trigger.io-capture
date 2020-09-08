@@ -157,8 +157,9 @@ if (forge.file) {
     asyncTest("Record a video with the camera and check file info", 2, function() {
         var runTest = function () {
             forge.capture.getVideo({
+                saveLocation: "file",
                 videoQuality: "high",
-                videoDuration: 2
+                videoDuration: 2,
             }, function (file) {
                 forge.file.info(file, function (info) {
                     ok(true, "file.info claims success");
@@ -179,39 +180,39 @@ if (forge.file) {
     });
 
 
-    if (forge.is.ios()) {
-        asyncTest("Record a video with low quality and check file info", 2, function() {
-            var runTest = function () {
-                forge.capture.getVideo({
-                    videoQuality: "low",
-                    videoDuration: 2
-                }, function (file) {
-                    forge.file.info(file, function (info) {
-                        ok(true, "file.info claims success");
-                        askQuestion("Is the file size smaller this time: " + JSON.stringify(info), {
-                            Yes: function () {
-                                ok(true, "File information is correct");
-                                start();
-                            },
-                            No: function () {
-                                ok(false, "User claims failure");
-                                start();
-                            }
-                        });
-                    }, function (e) {
-                        ok(false, "API call failure: " + e.message);
-                        start();
+    asyncTest("Record a video with low quality and check file info", 2, function() {
+        var runTest = function () {
+            forge.capture.getVideo({
+                saveLocation: "file",
+                videoQuality: "low",
+                videoDuration: 2
+            }, function (file) {
+                forge.file.info(file, function (info) {
+                    ok(true, "file.info claims success");
+                    askQuestion("Is the file size smaller this time: " + JSON.stringify(info), {
+                        Yes: function () {
+                            ok(true, "File information is correct");
+                            start();
+                        },
+                        No: function () {
+                            ok(false, "User claims failure");
+                            start();
+                        }
                     });
+                }, function (e) {
+                    ok(false, "API call failure: " + e.message);
+                    start();
                 });
-            };
-            askQuestion("Record another video", { Ok: runTest });
-        });
-    }
+            });
+        };
+        askQuestion("Record another video", { Ok: runTest });
+    });
+
 
     asyncTest("Camera Video Player", 1, function() {
         var runTest = function () {
             forge.capture.getVideo({
-                source: "camera"
+                saveLocation: "gallery",
             }, function (file) {
                 askQuestion("Was the video capture time unlimited?", {
                     Yes: function () {
