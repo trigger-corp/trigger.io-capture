@@ -2,6 +2,14 @@
     { "do": { "add_ios_system_framework": "CoreServices.framework" } },
     { "do": { "add_ios_system_framework": "Photos.framework" } },
     { "do": { "set_in_info_plist": {
+        "key": "NSPhotoLibraryUsageDescription",
+        "value": "{{modules.capture.config.usage_description}}"
+    } } },
+    { "do": { "set_in_info_plist": {
+        "key": "NSPhotoLibraryAddUsageDescription",
+        "value": "{{modules.capture.config.usage_description}}"
+    } } }
+    { "do": { "set_in_info_plist": {
         "key": "NSCameraUsageDescription",
         "value": "{{modules.capture.config.usage_description}}"
     } } },
