@@ -6,7 +6,7 @@
     },
     "modules": {
         "file": {
-            "disabled": false,
+            "disabled": true,
             "version": "2.25",
             "config": {
                 "usage_description": "file.usage_description"
