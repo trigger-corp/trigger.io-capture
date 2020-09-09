@@ -10,6 +10,7 @@
 
 #import "JLCameraPermission.h"
 #import "JLMicrophonePermission.h"
+#import "JLPhotosPermission.h"
 
 #import "capture_API.h"
 #import "capture_Delegate.h"
@@ -34,16 +35,6 @@
     delegate.saveLocation = task.params[@"saveLocation"] ? (NSString*)task.params[@"saveLocation"] : @"file";
     delegate.videoDuration = task.params[@"videoDuration"] ? [task.params[@"videoDuration"] doubleValue] : 0;
     delegate.videoQuality = task.params[@"videoQuality"] ? (NSString*)task.params[@"videoQuality"] : @"default";
-
-    /*[PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-        if (status != PHAuthorizationStatusAuthorized) {
-            [self->task error:@"Permission denied. User didn't grant access to storage." type:@"EXPECTED_FAILURE" subtype:nil];
-            return;
-        }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // TODO
-        });
-    }];*/
 
     [delegate openPicker];
 }
@@ -103,7 +94,9 @@
         ret = [JLCameraPermission sharedInstance];
     } else if ([permission isEqualToString:@"ios.permission.microphone"]) {
         ret = [JLMicrophonePermission sharedInstance];
-
+    } else if ([permission isEqualToString:@"ios.permission.photos_write"]) {
+        ret = [JLPhotosPermission sharedInstance];
+        
     } else {
         [ForgeLog w:[NSString stringWithFormat:@"Requested unknown permission:%@", permission]];
     }

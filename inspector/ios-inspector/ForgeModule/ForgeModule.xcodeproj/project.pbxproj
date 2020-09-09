@@ -10,6 +10,7 @@
 		71364CEE212C4738005D4E2A /* capture_Delegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 71364CED212C4738005D4E2A /* capture_Delegate.m */; };
 		71364CF1212C4754005D4E2A /* capture_UIImagePickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 71364CF0212C4754005D4E2A /* capture_UIImagePickerController.m */; };
 		71364CF4212C4764005D4E2A /* capture_Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 71364CF3212C4764005D4E2A /* capture_Storage.m */; };
+		7169E1F22508CC2400D285B7 /* JLPhotosPermission.m in Sources */ = {isa = PBXBuildFile; fileRef = 7169E1F12508CB0600D285B7 /* JLPhotosPermission.m */; };
 		71BDD9BF212E90D70075EEA3 /* JLMicrophonePermission.m in Sources */ = {isa = PBXBuildFile; fileRef = 71BDD9BB212E90D70075EEA3 /* JLMicrophonePermission.m */; };
 		71BDD9C0212E90D70075EEA3 /* JLCameraPermission.m in Sources */ = {isa = PBXBuildFile; fileRef = 71BDD9BC212E90D70075EEA3 /* JLCameraPermission.m */; };
 		B31B6D5215C13D5200854074 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B31B6D5115C13D5200854074 /* Foundation.framework */; };
@@ -29,6 +30,8 @@
 		71364CF0212C4754005D4E2A /* capture_UIImagePickerController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = capture_UIImagePickerController.m; sourceTree = "<group>"; };
 		71364CF2212C4764005D4E2A /* capture_Storage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = capture_Storage.h; sourceTree = "<group>"; };
 		71364CF3212C4764005D4E2A /* capture_Storage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = capture_Storage.m; sourceTree = "<group>"; };
+		7169E1F02508CB0600D285B7 /* JLPhotosPermission.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JLPhotosPermission.h; sourceTree = "<group>"; };
+		7169E1F12508CB0600D285B7 /* JLPhotosPermission.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JLPhotosPermission.m; sourceTree = "<group>"; };
 		718C4FD41F28D7F300A1557F /* placeholder.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = placeholder.plist; sourceTree = "<group>"; };
 		71BDD9BB212E90D70075EEA3 /* JLMicrophonePermission.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JLMicrophonePermission.m; sourceTree = "<group>"; };
 		71BDD9BC212E90D70075EEA3 /* JLCameraPermission.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JLCameraPermission.m; sourceTree = "<group>"; };
@@ -76,10 +79,12 @@
 		71BDD9BA212E90D70075EEA3 /* JLPermissions */ = {
 			isa = PBXGroup;
 			children = (
-				71BDD9BB212E90D70075EEA3 /* JLMicrophonePermission.m */,
+				71BDD9BE212E90D70075EEA3 /* JLCameraPermission.h */,
 				71BDD9BC212E90D70075EEA3 /* JLCameraPermission.m */,
 				71BDD9BD212E90D70075EEA3 /* JLMicrophonePermission.h */,
-				71BDD9BE212E90D70075EEA3 /* JLCameraPermission.h */,
+				71BDD9BB212E90D70075EEA3 /* JLMicrophonePermission.m */,
+				7169E1F02508CB0600D285B7 /* JLPhotosPermission.h */,
+				7169E1F12508CB0600D285B7 /* JLPhotosPermission.m */,
 			);
 			path = JLPermissions;
 			sourceTree = "<group>";
@@ -209,6 +214,7 @@
 				B3CC61F21716ECB500A1A8EF /* capture_API.m in Sources */,
 				71BDD9C0212E90D70075EEA3 /* JLCameraPermission.m in Sources */,
 				B3CC61F41716ECBB00A1A8EF /* capture_EventListener.m in Sources */,
+				7169E1F22508CC2400D285B7 /* JLPhotosPermission.m in Sources */,
 				71BDD9BF212E90D70075EEA3 /* JLMicrophonePermission.m in Sources */,
 				71364CEE212C4738005D4E2A /* capture_Delegate.m in Sources */,
 				71364CF1212C4754005D4E2A /* capture_UIImagePickerController.m in Sources */,
