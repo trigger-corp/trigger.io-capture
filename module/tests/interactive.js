@@ -4,7 +4,7 @@ module("forge.capture");
 
 
 // permissions module native code has to be baked into the capture module to avoid app store rejections
-/*
+
 if (forge.is.ios()) {
     if (!forge.permissions) {
         forge.permissions = {
@@ -31,11 +31,11 @@ if (forge.is.ios()) {
             },
         };
         function resolve(permission) {
-            if (forge.permissions.photos.write) {
+            if (permission === forge.permissions.photos.write) {
                 return "ios.permission.photos_write";
-            if (forge.permissions.camera.read) {
+            } else if (permission === forge.permissions.camera.read) {
                 return "ios.permission.camera";
-            } else if (forge.permissions.microphone.record) {
+            } else if (permission === forge.permissions.microphone.record) {
                 return "ios.permission.microphone";
             } else {
                 throw "Unknown permission: " + permission;
@@ -82,8 +82,23 @@ if (forge.is.ios()) {
         };
         askQuestion("If prompted, allow the permission request", { Ok: runTest });
     });
+
+    asyncTest("Photo library write permission request allowed.", 1, function() {
+        var runTest = function() {
+            forge.permissions.request(forge.permissions.photos.write, rationale, function (allowed) {
+                if (allowed) {
+                    ok(true, "Permission request allowed.");
+                    start();
+                } else {
+                    ok(false, "Permission request was denied. Expected permission allowed.");
+                    start();
+                }
+            }, apiError("permissions.request"));
+        };
+        askQuestion("If prompted, allow the permission request", { Ok: runTest });
+    });
 }
-*/
+
 
 
 if (forge.file) {
@@ -111,6 +126,29 @@ if (forge.file) {
         askQuestion("When prompted take a picture with the camera", { Ok: runTest });
     });
 
+    asyncTest("Check for image in Gallery", 1, function() {
+        var runTest = function () {
+            forge.file.getImage({
+                saveLocation: "gallery",
+                width: 256,
+                height: 256
+            }, function (file) {
+                forge.file.getScriptURL(file, function (url) {
+                    askQuestion("Is this your image:<br><img src='" + url + "' style='max-width: 512px; max-height: 512px'>", {
+                        Yes: function () {
+                            ok(true, "Success");
+                            start();
+                        },
+                        No: function () {
+                            ok(false, "User claims failure");
+                            start();
+                        }
+                    });
+                }, apiError("file.getScriptURL"));
+            }, apiError("file.getImage"));
+        };
+        askQuestion("When prompted select the picture you just took (it may take a moment to appear)", { Ok: runTest });
+    });
 
     asyncTest("Saving camera output to file", 4, function() {
         forge.capture.getImage({
@@ -208,7 +246,6 @@ if (forge.file) {
         askQuestion("Record another video", { Ok: runTest });
     });
 
-
     asyncTest("Camera Video Player", 1, function() {
         var runTest = function () {
             forge.capture.getVideo({
@@ -237,6 +274,27 @@ if (forge.file) {
         };
         askQuestion("Record a video which is longer than two seconds", { Ok: runTest });
     });
+
+    asyncTest("Camera Video Player", 1, function() {
+        var runTest = function () {
+            forge.file.getVideo(function (file) {
+                forge.file.getScriptURL(file, function (url) {
+                    askQuestion("Is this your video: <video controls autoplay playsinline style='max-width:512px; max-height:512px' src='" + url + "'></video>", {
+                        Yes: function () {
+                            ok(true, "video playback successful");
+                            start();
+                        },
+                        No: function () {
+                            ok(false, "video playback failed");
+                            start();
+                        }
+                    });
+                }, apiError("file.getScriptURL"));
+            }, apiError("file.getVideo"));
+        };
+        askQuestion("When prompted select the video you just recorded (it may take a moment to show up)", { Ok: runTest });
+    });
+
 }
 
 
